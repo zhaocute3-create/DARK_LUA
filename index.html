@@ -53,7 +53,6 @@ button {
   margin-top: 20px;
   font-weight: bold;
 }
-
 </style>
 </head>
 
@@ -76,22 +75,53 @@ button {
 
 <script>
 
-// 🔥 PALITAN MO ITO KUNG MAY IBANG PASTEBIN KA
+// 🔥 PASTEBIN MO
 const pasteLinks = {
-  mlbb: "https://api.allorigins.win/raw?url=https://pastebin.com/raw/6mLPUS3z",
-  codm: "https://api.allorigins.win/raw?url=https://pastebin.com/raw/6mLPUS3z"
+  mlbb: "https://api.allorigins.win/raw?url=https://pastebin.com/raw/iRRxw3mp",
+  codm: "https://api.allorigins.win/raw?url=https://pastebin.com/raw/iRRxw3mp"
 };
 
-// 🔥 GPLink mo
+// 🔥 GPLINK MO
 const gplink = "https://gplinks.co/uFLIitrq";
 
-// 👉 CLICK BUTTON
+// ⏱️ 5 HOURS COOLDOWN
+function canGenerate() {
+  const last = localStorage.getItem("lastKeyTime");
+  if (!last) return true;
+
+  return (Date.now() - last) > (5 * 60 * 60 * 1000);
+}
+
+function setCooldown() {
+  localStorage.setItem("lastKeyTime", Date.now());
+}
+
+function getRemainingTime() {
+  const last = localStorage.getItem("lastKeyTime");
+  if (!last) return 0;
+
+  const remaining = (5 * 60 * 60 * 1000) - (Date.now() - last);
+  return remaining > 0 ? remaining : 0;
+}
+
+// 👉 BUTTON
 function getKey() {
-  document.getElementById("result").innerText = "Redirecting... ⏳";
+  const result = document.getElementById("result");
+
+  if (!canGenerate()) {
+    const remaining = getRemainingTime();
+    const hours = Math.floor(remaining / (1000 * 60 * 60));
+    const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+
+    result.innerText = `⏳ Wait ${hours}h ${minutes}m`;
+    return;
+  }
+
+  result.innerText = "Redirecting... ⏳";
   window.location.href = gplink;
 }
 
-// 👉 PAG GALING SA GPLINK
+// 👉 PAG GALING GPLINK
 window.onload = function() {
   const params = new URLSearchParams(window.location.search);
 
@@ -100,7 +130,7 @@ window.onload = function() {
   }
 };
 
-// 👉 FETCH KEY
+// 👉 GET KEY (NO EXPIRATION)
 async function generateKeyDirect() {
   const result = document.getElementById("result");
   const game = document.getElementById("game").value;
@@ -122,11 +152,12 @@ async function generateKeyDirect() {
 
     result.innerText = "Your Key: " + key;
 
+    setCooldown();
+
   } catch (err) {
     result.innerText = "Error fetching keys ❌";
   }
 }
-
 </script>
 
 </body>
