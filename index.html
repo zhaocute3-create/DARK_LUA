@@ -1,0 +1,145 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DARK LUA</title><style>
+body {
+  background: #020617;
+  color: white;
+  font-family: Arial;
+  text-align: center;
+}
+
+.container {
+  max-width: 400px;
+  margin: auto;
+  padding: 20px;
+}
+
+.title {
+  font-size: 35px;
+  color: #22c55e;
+  margin-bottom: 10px;
+}
+
+.card {
+  background: #0f172a;
+  padding: 20px;
+  border-radius: 15px;
+}
+
+select {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 10px;
+  border: none;
+  background: #1e293b;
+  color: white;
+}
+
+button {
+  width: 100%;
+  padding: 15px;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.generate {
+  background: linear-gradient(90deg, red, orange);
+  color: white;
+}
+
+.output {
+  margin-top: 20px;
+  color: #22c55e;
+  font-weight: bold;
+}
+
+.timer {
+  margin-top: 10px;
+  color: #facc15;
+}
+</style></head><body><div class="container">
+  <div class="title">DARK LUA</div>  <div class="card">
+    <h3>🔑 Generate Key</h3><select id="game">
+  <option value="mlbb">Mobile Legends</option>
+  <option value="codm">Call of Duty Mobile (CODM)</option>
+</select>
+
+<button class="generate" onclick="getKey()">Generate Key</button>
+
+<div class="output" id="result"></div>
+<div class="timer" id="timer"></div>
+
+  </div>
+</div><script>
+// Separate paste per game
+const pasteLinks = {
+  mlbb: "https://corsproxy.io/?https://pastebin.com/raw/6mLPUS3z",
+  codm: "https://corsproxy.io/?https://pastebin.com/raw/6mLPUS3z"
+};
+
+function getRemainingTime() {
+  const last = localStorage.getItem("lastKeyTime");
+  if (!last) return 0;
+
+  const diff = Date.now() - last;
+  const remaining = 12 * 60 * 60 * 1000 - diff;
+
+  return remaining > 0 ? remaining : 0;
+}
+
+function updateTimer() {
+  const timer = document.getElementById("timer");
+  const remaining = getRemainingTime();
+
+  if (remaining <= 0) {
+    timer.innerText = "Ready to generate ✅";
+    return;
+  }
+
+  const hours = Math.floor(remaining / (1000 * 60 * 60));
+  const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+
+  timer.innerText = `Next key in: ${hours}h ${minutes}m`;
+}
+
+setInterval(updateTimer, 1000);
+
+async function getKey() {
+  const result = document.getElementById("result");
+  const game = document.getElementById("game").value;
+
+  if (getRemainingTime() > 0) {
+    result.innerText = "⛔ Wait before generating again";
+    return;
+  }
+
+  result.innerText = "Loading... ⚡";
+
+  try {
+    const res = await fetch(pasteLinks[game]);
+    const text = await res.text();
+
+    const keys = text.split("\n").filter(k => k.trim() !== "");
+
+    if (keys.length === 0) {
+      result.innerText = "No keys found ❌";
+      return;
+    }
+
+    const key = keys[Math.floor(Math.random() * keys.length)];
+
+    result.innerText = "Your Key: " + key;
+    localStorage.setItem("lastKeyTime", Date.now());
+
+  } catch (err) {
+    result.innerText = "Error fetching keys ❌";
+  }
+}
+</script></body>
+</html>
